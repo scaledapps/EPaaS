@@ -1,0 +1,16 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam stereotypeCFontSize 12
+
+title EPaaS Reconciliation Container Diagram
+
+rectangle "ReconService" as RS <<Service>>
+database "Database" as DB
+folder "FileStorage" as FS
+
+RS -left-> FS : Stores/Retrieves files
+RS -right-> DB : Stores/Retrieves data
+
+footer Depicts the deployable units, such as services, databases, and file storage systems.
+
+@enduml

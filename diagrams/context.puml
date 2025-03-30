@@ -1,0 +1,19 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam stereotypeCFontSize 12
+
+title EPaaS Reconciliation System Context Diagram
+
+actor "EPassS Admins"
+actor TPPPs
+actor PaymentInitiators
+
+rectangle "EPaaS Reconciliation System" as System <<System>>
+
+"EPassS Admins" --> System : Configures
+TPPPs --> System : Sends payment requests and responses
+PaymentInitiators --> System : Uploads batch files
+
+footer Depicts the EPaaS Reconciliation System and its interactions with external entities.
+
+@enduml

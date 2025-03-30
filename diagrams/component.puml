@@ -1,0 +1,30 @@
+@startuml
+skinparam stereotypeCFontSize 12
+'skinparam linetype ortho
+'left to right direction
+
+title EPaaS Reconciliation System Context Diagram
+
+package "ReconService" as RS {
+    component "Configuration Manager" as ConfigMgr
+    component "Payment Processor" as PayReqProc
+    component "File Uploader" as BatchFileUploader
+    component "Recon Engine" as ReconEngine
+}
+
+database "PostgreSQL" as PostgreSQL
+folder "File Storage" as FS
+queue "Message Queue" as MQ
+
+ConfigMgr --> PostgreSQL : "Stores/Retrieves configuration data"
+PayReqProc --> PostgreSQL : "Stores payment request data"
+PayReqProc --> PostgreSQL : "Updates transaction status"
+BatchFileUploader --> FS : "Stores batch files"
+BatchFileUploader --> ReconEngine : "Notifies of new batch file"
+ReconEngine --> PostgreSQL : "Retrieves transaction data\nUpdates reconciliation statuses"
+ReconEngine --> FS : "Retrieves batch files"
+ReconEngine --> MQ : "Publishes event-driven updates"
+
+footer Depicts the ReconService's components and their interactions with each other and other containers.
+
+@enduml
