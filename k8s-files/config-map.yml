@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservice-config
+  namespace: epaas
+data:
+  KAFKA_BROKER: "kafka-broker-1:9092"
+  AWS_S3_BUCKET: "recon-batch-files"
+  RDS_HOST: "your-rds-instance.amazonaws.com"
+  API_GATEWAY_URL: "https://api.yourdomain.com"

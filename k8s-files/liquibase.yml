@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: liquibase-migrate
+  namespace: epaas
+spec:
+  template:
+    spec:
+      containers:
+      - name: liquibase
+        image: liquibase/liquibase:latest
+        command: ["liquibase", "update"]
+        env:
+        - name: DATABASE_URL
+          value: "jdbc:postgresql://your-rds-instance.amazonaws.com:5432/payments"
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: DB_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: DB_PASS
+        volumeMounts:
+        - name: liquibase-changelog
+          mountPath: /liquibase/changelog
+      restartPolicy: Never
+      volumes:
+      - name: liquibase-changelog
+        configMap:
+          name: liquibase-config
