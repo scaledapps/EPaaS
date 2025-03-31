@@ -79,7 +79,7 @@ Here's the high-level view of the solution, depicting the EPaaS Reconciliation S
 It consists of several key components:
 - **Payment API**: Handles incoming payment requests, and sends payment events to the **Payment-Requests topic**. This service also processes transaction responses, that are posted to the **Payment-Responses topic**.
 - **Recon API**: Handles incoming reconciliation requests, and sends reconciliation events to the **Recon-Events topic**. This API also manages batch file uploads for on-demand reconciliation, storing files in FileStorage and then sends reconciliation events to the **Recon-Events topic**.
-- **Config API**: Handles configuration of reconciliation parameters and other settings.
+- **Config API**: Handles configuration of reconciliation parameters and other settings such as rate limits.
 - **Payment Processor**: Consumes messages from **Payment-Requests topic**, updates the database and dispatches the request to the bank system. If a payment response is received immediately, then it posts a message to the **Recon-Events topic**. This processor also consumes messages from **Payment-Responses topic**. Then updates the database with the payment status and posts a message to the **Recon-Events topic**.
 - **Recon Processor**: Performs reconciliation of single events or batches, based on transaction request & response matching.
 - **Database**: Stores transaction data (payment requests, responses, and reconciliation records), using PostgreSQL for relational data management. This database also stores audit logs for compliance purposes.
@@ -114,7 +114,8 @@ The key tables are described below:
 - **Authentication & Security:** API Key, Mutual TLS
 - **API Gateway:** As per standards
 - **Logging & Monitoring:** As per standards
-
+- **Deployment:** Kubernetes, Docker
+- **Liquibase**: Database changeset management
 
 ### NFRs, SLAs & Compliances
 - **Scalability:** Kafka and Kubernetes ensures high-throughput and horizontal scalability
@@ -225,12 +226,12 @@ sequenceDiagram
 #### **Task breakdown and estimates**
 | Task | Complexity | Estimated Time (hrs) |
 |------|-------------|-----------------------|
-| Backend API for Payment | Complex | 40 |
+| Backend API for Payment | Complex | 32 |
 | API Testing | Medium | 8 |
 | Integration Testing | Medium | 8 |
 | Config & Deployment | Simple | 4 |
 
-**Total Estimate: 60 hours**
+**Total Estimate: 52 hours**
 
 
 ### PaymentService (/payment/callback)
@@ -310,19 +311,43 @@ sequenceDiagram
 #### **Task breakdown and estimates**
 | Task | Complexity | Estimated Time (hrs) |
 |------|-------------|-----------------------|
-| Backend API for Payment Callback | Complex | 40 |
+| Backend API for Payment Callback | Complex | 24 |
 | API Testing | Medium | 8 |
 | Integration Testing | Medium | 8 |
 | Config & Deployment | Simple | 4 |
 
-**Total Estimate: 60 hours**
+**Total Estimate: 44 hours**
+
+## API Performance Testing
+- Simulate normal load.
+- Simulate peak load.
+- Increase API calls beyond peak load until failures occur.
+- Monitor API response times and resource usage.
+- Check how Kubernetes auto-scales new microservice instances.
+- Validate Kafka partitions and consumer scaling.
+- Check PostgreSQL query times and performance.
+- Test caching effectiveness - with and without MemCached
 
 ## CI/CD Architecture
 TODO: Add diagram and description
 - Docker images are built and pushed to AWS ECR
 - SonarQube & TwistLock scans code & images for vulnerabilities
+- SonarQube, OWASP Dependency-Check & TwistLock scans code, dependencies & docker images for vulnerabilities
+- Automated unit tests are run on each commit, integration tests are run on each PR, code coverage thresholds are enforced for PR merges
+- Renovate bot updates dependencies and creates PRs for dependency upgrades
 - Helm Charts deploy microservices on Kubernetes cluster on AWS Virtual Machines
 - Auto-scaling policies are applied based on CPU and memory usage, and also based on custom metrics.
 - Configurations are managed using ConfigMaps and AWS Secrets Manager
 - Rolling deployments ensure zero downtime
 - Compliance checks with AWS Security Hub
+- Compliance checks with AWS Security Hub
+
+## Governance Plan for Engineering Teams
+- Automated checks in CI/CD pipelines.
+- Regular technical walkthroughs.
+- L2 code reviews to ensure the code adheres to architectural guidelines, naming conventions, and design patterns.
+- API contract validation.
+- Review integration and system test reports.
+- Review performance test reports.
+- Deployment and production validation.
+- Review audit logs and logs from monitoring tools.
